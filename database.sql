@@ -84,11 +84,6 @@ CREATE INDEX idx_token_qr ON pendaftaran(token_qr);
 CREATE INDEX idx_kode_tiket ON pendaftaran(kode_tiket);
 CREATE INDEX idx_status_checkin ON pendaftaran(status_checkin);
 
-ALTER TABLE user 
-            ADD COLUMN otp_code VARCHAR(10) NULL, 
-            ADD COLUMN otp_expires_at DATETIME NULL, 
-            ADD COLUMN is_verified BOOLEAN DEFAULT TRUE;
-
 -- =====================================================
 -- ADMIN DEFAULT
 -- EMAIL    : admin@gmail.com

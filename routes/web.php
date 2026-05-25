@@ -12,7 +12,8 @@ Router::get('/login', 'AuthController@showLogin');
 Router::post('/login', 'AuthController@login');
 Router::get('/register', 'AuthController@showRegister');
 Router::post('/register', 'AuthController@register');
-Router::get('/verify', 'AuthController@verify');
+Router::get('/verify-otp', 'AuthController@showVerifyOtp');
+Router::post('/verify-otp', 'AuthController@processVerifyOtp');
 Router::post('/resend-otp', 'AuthController@resendOtp');
 Router::get('/logout', 'AuthController@logout');
 

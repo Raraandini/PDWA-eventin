@@ -1,12 +1,12 @@
 <?php
+
 namespace App\Config;
 
 use PDO;
 use PDOException;
 
 class Database {
-    
-    private static $host = 'localhost';
+    private static $host = '127.0.0.1';
     private static $db_name = 'manajemen_event';
     private static $username = 'root';
     private static $password = '';
