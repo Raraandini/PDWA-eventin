@@ -1,0 +1,52 @@
+body {
+    font-family: Inter, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+}
+.serif {
+    font-family: "Playfair Display", serif;
+}
+.signature {
+    font-family: "Pinyon Script", cursive;
+}
+.certificate {
+    width: min(1120px, 100%);
+    aspect-ratio: 1.414;
+    background:
+        linear-gradient(135deg, rgba(251, 191, 36, .12), transparent 32%),
+        linear-gradient(315deg, rgba(30, 58, 138, .10), transparent 30%),
+        #fff;
+    position: relative;
+}
+.certificate:before {
+    content: "";
+    position: absolute;
+    inset: 26px;
+    border: 5px solid #172554;
+}
+.certificate:after {
+    content: "";
+    position: absolute;
+    inset: 38px;
+    border: 1px solid #b45309;
+}
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 0;
+    }
+    body {
+        margin: 0 !important;
+        background: white !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .certificate {
+        width: 100vw !important;
+        height: 100vh !important;
+        aspect-ratio: auto !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+}
