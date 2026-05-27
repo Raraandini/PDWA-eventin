@@ -18,7 +18,10 @@ CREATE TABLE IF NOT EXISTS user (
     instansi VARCHAR(100),
     role ENUM('admin', 'peserta') DEFAULT 'peserta',
     dibuat_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    diupdate_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    diupdate_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    otp_code VARCHAR(10) DEFAULT NULL,
+    otp_expires_at DATETIME DEFAULT NULL,
+    is_verified TINYINT(1) DEFAULT 0
 );
 
 -- =====================================================
@@ -89,8 +92,8 @@ CREATE INDEX idx_status_checkin ON pendaftaran(status_checkin);
 -- EMAIL    : admin@gmail.com
 -- PASSWORD : admin123
 -- =====================================================
-INSERT INTO user (nama, email, password, role)
-SELECT 'Administrator', 'admin@gmail.com', '$2y$10$i8p.ed1Xq3lu1fg8pf2/.uH1y9pBme68kUVxhlSY.y6Ml3ZzAIj8a', 'admin'
+INSERT INTO user (nama, email, password, role, is_verified)
+SELECT 'Administrator', 'admin@gmail.com', '$2y$10$i8p.ed1Xq3lu1fg8pf2/.uH1y9pBme68kUVxhlSY.y6Ml3ZzAIj8a', 'admin', 1
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'admin@gmail.com');
 

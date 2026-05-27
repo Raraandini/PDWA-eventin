@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('register-form');
     const password = document.getElementById('password');
     const confirm = document.getElementById('password_confirmation');
@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
         showError(input, input.value.length > 0 && invalid);
         return !invalid;
     }
-    document.querySelectorAll('[data-validate]').forEach(function(input) {
-        input.addEventListener('input', function() {
+    document.querySelectorAll('[data-validate]').forEach(function (input) {
+        input.addEventListener('input', function () {
             validateInput(input);
             if (confirm.value) validateInput(confirm);
             if (input === password && strength) {
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     if (form) {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             const ok = Array.from(document.querySelectorAll('[data-validate]')).every(validateInput);
             if (!ok) {
                 e.preventDefault();

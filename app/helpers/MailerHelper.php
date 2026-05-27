@@ -18,8 +18,8 @@ class MailerHelper
             $this->mail->isSMTP();
             $this->mail->Host       = 'smtp.gmail.com'; // Change to your SMTP host
             $this->mail->SMTPAuth   = true;
-            $this->mail->Username   = 'sukmahawaiza@gmail.com'; // SMTP username
-            $this->mail->Password   = 'ticz vsaj hydl wlex';    // SMTP password (use App Password for Gmail)
+            $this->mail->Username   = 'kyyrizvz@gmail.com'; // SMTP username
+            $this->mail->Password   = 'wiik hsin aznf wmbh';    // SMTP password (use App Password for Gmail)
             $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $this->mail->Port       = 587;
 
