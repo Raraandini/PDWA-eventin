@@ -60,6 +60,8 @@ class DashboardController {
         $instansi = trim($_POST['instansi'] ?? '');
         $password = $_POST['password'] ?? '';
         $passwordConfirm = $_POST['password_confirmation'] ?? '';
+        $avatar = $_POST['avatar'] ?? null;
+        $theme_color = $_POST['theme_color'] ?? 'lime';
 
         if (empty($nama) || empty($email) || empty($no_hp) || empty($instansi)) {
             $_SESSION['error'] = 'Semua informasi pribadi wajib diisi.';
@@ -80,7 +82,7 @@ class DashboardController {
             exit();
         }
 
-        $success = $this->userModel->updateProfile($userId, $nama, $email, $no_hp, $instansi);
+        $success = $this->userModel->updateProfile($userId, $nama, $email, $no_hp, $instansi, $avatar, $theme_color);
 
         if (!empty($password)) {
             if (strlen($password) < 6 || $password !== $passwordConfirm) {
@@ -94,6 +96,12 @@ class DashboardController {
         if ($success) {
             $_SESSION['nama'] = $nama;
             $_SESSION['email'] = $email;
+            if ($avatar !== null) {
+                $_SESSION['avatar'] = $avatar;
+            }
+            if ($theme_color !== null) {
+                $_SESSION['theme_color'] = $theme_color;
+            }
             $_SESSION['success'] = 'Profil berhasil diperbarui.';
         } else {
             $_SESSION['error'] = 'Gagal memperbarui profil.';

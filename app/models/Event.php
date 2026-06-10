@@ -12,29 +12,31 @@ class Event {
         $this->db = Database::getConnection();
     }
 
-    public function create($judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $banner, $dibuat_oleh) {
-        $sql = "INSERT INTO event (judul, slug, deskripsi, lokasi, tanggal_event, waktu_event, kuota, banner, status, dibuat_oleh) 
-                VALUES (:judul, :slug, :deskripsi, :lokasi, :tanggal_event, :waktu_event, :kuota, :banner, 'open', :dibuat_oleh)";
+    public function create($judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $banner, $dibuat_oleh, $kategori = 'Umum', $batas_registrasi = null) {
+        $sql = "INSERT INTO event (judul, slug, deskripsi, lokasi, tanggal_event, waktu_event, kuota, banner, status, dibuat_oleh, kategori, batas_registrasi) 
+                VALUES (:judul, :slug, :deskripsi, :lokasi, :tanggal_event, :waktu_event, :kuota, :banner, 'open', :dibuat_oleh, :kategori, :batas_registrasi)";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             ':judul' => htmlspecialchars(strip_tags($judul)),
             ':slug' => htmlspecialchars(strip_tags($slug)),
-            ':deskripsi' => htmlspecialchars($deskripsi), // Allow some text layout, sanitize on display if needed or keep safe
+            ':deskripsi' => htmlspecialchars($deskripsi),
             ':lokasi' => htmlspecialchars(strip_tags($lokasi)),
             ':tanggal_event' => $tanggal_event,
             ':waktu_event' => $waktu_event,
             ':kuota' => (int)$kuota,
             ':banner' => $banner,
-            ':dibuat_oleh' => $dibuat_oleh
+            ':dibuat_oleh' => $dibuat_oleh,
+            ':kategori' => htmlspecialchars(strip_tags($kategori)),
+            ':batas_registrasi' => $batas_registrasi ?: null
         ]);
     }
 
-    public function update($id, $judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $banner, $status) {
+    public function update($id, $judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $banner, $status, $kategori = 'Umum', $batas_registrasi = null) {
         $sql = "UPDATE event 
                 SET judul = :judul, slug = :slug, deskripsi = :deskripsi, lokasi = :lokasi, 
                     tanggal_event = :tanggal_event, waktu_event = :waktu_event, kuota = :kuota, 
-                    banner = :banner, status = :status 
+                    banner = :banner, status = :status, kategori = :kategori, batas_registrasi = :batas_registrasi 
                 WHERE id = :id";
         
         $stmt = $this->db->prepare($sql);
@@ -48,7 +50,9 @@ class Event {
             ':waktu_event' => $waktu_event,
             ':kuota' => (int)$kuota,
             ':banner' => $banner,
-            ':status' => $status
+            ':status' => $status,
+            ':kategori' => htmlspecialchars(strip_tags($kategori)),
+            ':batas_registrasi' => $batas_registrasi ?: null
         ]);
     }
 
@@ -88,15 +92,57 @@ class Event {
         return $stmt->fetchAll();
     }
 
-    public function allActive() {
+    public function allActive($search = '', $kategori = '', $limit = 6, $offset = 0) {
         $sql = "SELECT e.*, u.nama as pembuat,
                 (SELECT COUNT(*) FROM pendaftaran p WHERE p.event_id = e.id) as terdaftar 
                 FROM event e 
                 LEFT JOIN user u ON e.dibuat_oleh = u.id 
-                WHERE e.status = 'open' 
-                ORDER BY e.tanggal_event ASC";
-        $stmt = $this->db->query($sql);
+                WHERE e.status = 'open'";
+        
+        $params = [];
+        
+        if (!empty($search)) {
+            $sql .= " AND e.judul LIKE :search";
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        if (!empty($kategori)) {
+            $sql .= " AND e.kategori = :kategori";
+            $params[':kategori'] = $kategori;
+        }
+
+        $sql .= " ORDER BY e.tanggal_event ASC LIMIT :limit OFFSET :offset";
+        
+        // PDO needs limit and offset to be integers
+        $stmt = $this->db->prepare($sql);
+        foreach($params as $key => &$val) {
+            $stmt->bindParam($key, $val);
+        }
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
         return $stmt->fetchAll();
+    }
+
+    public function countActiveFiltered($search = '', $kategori = '') {
+        $sql = "SELECT COUNT(*) as total FROM event e WHERE e.status = 'open'";
+        $params = [];
+        
+        if (!empty($search)) {
+            $sql .= " AND e.judul LIKE :search";
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        if (!empty($kategori)) {
+            $sql .= " AND e.kategori = :kategori";
+            $params[':kategori'] = $kategori;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetch();
+        return (int)$result['total'];
     }
 
     public function getRemainingKuota($id) {

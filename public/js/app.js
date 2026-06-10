@@ -62,19 +62,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toast System
     window.EventinToast = function(message, type) {
-        const root = document.getElementById('toast-root');
-        if (!root) return;
-        const palette = {
-            success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-            error: 'border-red-200 bg-red-50 text-red-700',
-            warning: 'border-orange-200 bg-orange-50 text-orange-700',
-            info: 'border-slate-200 bg-white text-slate-700'
-        };
-        const el = document.createElement('div');
-        el.className = 'animate-fadeUp rounded-2xl border px-4 py-3 shadow-soft text-sm font-bold ' + (palette[type || 'info'] || palette.info);
-        el.textContent = message;
-        root.appendChild(el);
-        setTimeout(function() { el.remove(); }, 4200);
+        if (typeof Swal !== 'undefined') {
+            const iconMap = { success: 'success', error: 'error', warning: 'warning', info: 'info' };
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                showConfirmButton: false,
+                timer: 4200,
+                timerProgressBar: true,
+                icon: iconMap[type] || 'info',
+                title: message,
+                customClass: {
+                    popup: 'rounded-2xl shadow-lift border border-slate-100',
+                    title: 'font-bold text-sm text-slate-800'
+                }
+            });
+        } else {
+            const root = document.getElementById('toast-root');
+            if (!root) return;
+            const palette = {
+                success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                error: 'border-red-200 bg-red-50 text-red-700',
+                warning: 'border-orange-200 bg-orange-50 text-orange-700',
+                info: 'border-slate-200 bg-white text-slate-700'
+            };
+            const el = document.createElement('div');
+            el.className = 'animate-fadeUp rounded-2xl border px-4 py-3 shadow-soft text-sm font-bold ' + (palette[type || 'info'] || palette.info);
+            el.textContent = message;
+            root.appendChild(el);
+            setTimeout(function() { el.remove(); }, 4200);
+        }
     };
 
     document.querySelectorAll('[data-toast]').forEach(function(el) {

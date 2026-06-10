@@ -54,12 +54,21 @@ class AuthController {
         // Login user
         AuthHelper::login($user);
 
+        // Sanitize redirect parameter to prevent Open Redirect vulnerability
+        // Only allow local paths starting with single '/'
+        $safeRedirect = null;
+        if (!empty($redirect) && strpos($redirect, '/') === 0 && strpos($redirect, '//') !== 0) {
+            $safeRedirect = $redirect;
+        }
+
         // Redirect based on role or original target
-        if (!empty($redirect)) {
-            header("Location: " . $redirect);
+        if ($safeRedirect) {
+            header("Location: " . $safeRedirect);
         } else {
             if ($user['role'] === 'admin') {
                 header("Location: " . AuthHelper::getBaseUrl() . "/admin");
+            } elseif ($user['role'] === 'petugas') {
+                header("Location: " . AuthHelper::getBaseUrl() . "/admin/scan");
             } else {
                 header("Location: " . AuthHelper::getBaseUrl() . "/dashboard");
             }
@@ -172,7 +181,13 @@ class AuthController {
             unset($_SESSION['verify_email']);
 
             $_SESSION['success'] = 'Email berhasil diverifikasi! Anda telah masuk.';
-            header("Location: " . AuthHelper::getBaseUrl() . "/dashboard");
+            if ($user['role'] === 'admin') {
+                header("Location: " . AuthHelper::getBaseUrl() . "/admin");
+            } elseif ($user['role'] === 'petugas') {
+                header("Location: " . AuthHelper::getBaseUrl() . "/admin/scan");
+            } else {
+                header("Location: " . AuthHelper::getBaseUrl() . "/dashboard");
+            }
         } else {
             $_SESSION['error'] = 'Kode OTP salah atau sudah kedaluwarsa.';
             header("Location: " . AuthHelper::getBaseUrl() . "/verify-otp");

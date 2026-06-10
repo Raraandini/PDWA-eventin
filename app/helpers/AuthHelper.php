@@ -18,6 +18,45 @@ class AuthHelper {
         }
     }
 
+   
+    public static function generateCsrfToken() {
+        self::startSession();
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    public static function getCsrfInput() {
+        $token = self::generateCsrfToken();
+        return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token) . '">';
+    }
+
+    public static function requireCsrf() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            self::startSession();
+            $headers = getallheaders();
+            $token = $_POST['csrf_token'] ?? $headers['X-CSRF-TOKEN'] ?? '';
+            
+            if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+                // If it is a JSON request, return JSON response
+                if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+                    http_response_code(403);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Token CSRF tidak valid. Silakan muat ulang halaman.'
+                    ]);
+                    exit();
+                } else {
+                    $_SESSION['error'] = 'Sesi form Anda telah kedaluwarsa atau tidak valid (CSRF). Silakan coba lagi.';
+                    header("Location: " . ($_SERVER['HTTP_REFERER'] ?? self::getBaseUrl()));
+                    exit();
+                }
+            }
+        }
+    }
+    // -----------------------
+
     public static function login($user) {
         self::startSession();
         // Prevent session fixation
@@ -27,6 +66,8 @@ class AuthHelper {
         $_SESSION['nama'] = $user['nama'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = $user['role'];
+        $_SESSION['avatar'] = $user['avatar'] ?? null;
+        $_SESSION['theme_color'] = $user['theme_color'] ?? 'lime';
     }
 
     public static function logout() {
@@ -59,6 +100,16 @@ class AuthHelper {
         return self::isLoggedIn() && $_SESSION['role'] === 'admin';
     }
 
+    public static function isPetugas() {
+        self::startSession();
+        return self::isLoggedIn() && $_SESSION['role'] === 'petugas';
+    }
+
+    public static function isStaff() {
+        self::startSession();
+        return self::isLoggedIn() && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'petugas');
+    }
+
     public static function getUserId() {
         self::startSession();
         return $_SESSION['user_id'] ?? null;
@@ -89,6 +140,23 @@ class AuthHelper {
             http_response_code(403);
             $errorCode = 403;
             $errorMessage = "Akses Ditolak: Anda tidak memiliki izin untuk mengakses halaman ini.";
+            
+            $errorFile = __DIR__ . '/../views/errors/error.php';
+            if (file_exists($errorFile)) {
+                include $errorFile;
+            } else {
+                echo "<h1>Error 403</h1><p>Akses Ditolak</p>";
+            }
+            exit();
+        }
+    }
+
+    public static function requireStaff() {
+        self::requireLogin();
+        if (!self::isStaff()) {
+            http_response_code(403);
+            $errorCode = 403;
+            $errorMessage = "Akses Ditolak: Anda bukan Admin atau Petugas.";
             
             $errorFile = __DIR__ . '/../views/errors/error.php';
             if (file_exists($errorFile)) {

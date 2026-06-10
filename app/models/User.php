@@ -37,7 +37,7 @@ class User {
     }
 
     public function findById($id) {
-        $sql = "SELECT id, nama, email, no_hp, instansi, role, is_verified, dibuat_pada FROM user WHERE id = :id LIMIT 1";
+        $sql = "SELECT id, nama, email, no_hp, instansi, role, is_verified, avatar, theme_color, dibuat_pada FROM user WHERE id = :id LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();
@@ -117,9 +117,25 @@ class User {
         return (int)$result['total'];
     }
 
-    public function updateProfile($id, $nama, $email, $no_hp, $instansi) {
+    public function updateProfile($id, $nama, $email, $no_hp, $instansi, $avatar = null, $theme_color = 'lime') {
+        if ($avatar !== null) {
+            $sql = "UPDATE user 
+                    SET nama = :nama, email = :email, no_hp = :no_hp, instansi = :instansi, avatar = :avatar, theme_color = :theme_color 
+                    WHERE id = :id";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':id' => $id,
+                ':nama' => htmlspecialchars(strip_tags($nama)),
+                ':email' => htmlspecialchars(strip_tags($email)),
+                ':no_hp' => htmlspecialchars(strip_tags($no_hp)),
+                ':instansi' => htmlspecialchars(strip_tags($instansi)),
+                ':avatar' => htmlspecialchars(strip_tags($avatar)),
+                ':theme_color' => htmlspecialchars(strip_tags($theme_color))
+            ]);
+        }
+
         $sql = "UPDATE user 
-                SET nama = :nama, email = :email, no_hp = :no_hp, instansi = :instansi 
+                SET nama = :nama, email = :email, no_hp = :no_hp, instansi = :instansi, theme_color = :theme_color 
                 WHERE id = :id";
 
         $stmt = $this->db->prepare($sql);
@@ -128,7 +144,8 @@ class User {
             ':nama' => htmlspecialchars(strip_tags($nama)),
             ':email' => htmlspecialchars(strip_tags($email)),
             ':no_hp' => htmlspecialchars(strip_tags($no_hp)),
-            ':instansi' => htmlspecialchars(strip_tags($instansi))
+            ':instansi' => htmlspecialchars(strip_tags($instansi)),
+            ':theme_color' => htmlspecialchars(strip_tags($theme_color))
         ]);
     }
 
@@ -146,5 +163,18 @@ class User {
         $stmt = $this->db->query($sql);
         $result = $stmt->fetch();
         return (int)$result['total'];
+    }
+
+    public function getPetugas() {
+        $sql = "SELECT id, nama, email, no_hp, instansi, dibuat_pada FROM user WHERE role = 'petugas' ORDER BY dibuat_pada DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function delete($id) {
+        $sql = "DELETE FROM user WHERE id = :id AND role = 'petugas'";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([':id' => $id]);
     }
 }

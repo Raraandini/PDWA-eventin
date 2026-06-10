@@ -1,7 +1,7 @@
 <?php include dirname(__DIR__) . '/layouts/header.php'; ?>
 
 <section class="eventin-container py-10 lg:py-16">
-    <div class="grid min-h-[72vh] overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-lift lg:grid-cols-[1.05fr_.95fr]">
+    <div class="grid min-h-[72vh] overflow-hidden rounded-[2rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lift lg:grid-cols-[1.05fr_.95fr]">
         <div class="relative hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
             <div class="shape-grid absolute inset-0 opacity-20"></div>
             <div class="relative">
@@ -13,12 +13,12 @@
 
         <div class="flex items-center justify-center p-6 sm:p-10">
             <div class="w-full max-w-md">
-                <a href="<?= $baseUrl ?>/" class="mb-8 inline-flex items-center gap-2 text-sm font-black text-slate-500 hover:text-slate-950">
+                <a href="<?= $baseUrl ?>/" class="mb-8 inline-flex items-center gap-2 text-sm font-black text-slate-500 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white">
                     <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
                 </a>
                 <span class="badge-soft">Login</span>
-                <h2 class="mt-4 font-display text-4xl font-black text-slate-950">Selamat datang kembali.</h2>
-                <p class="mt-2 text-sm leading-6 text-slate-600">Masuk untuk membuka tiket digital, dashboard, dan operasi event.</p>
+                <h2 class="mt-4 font-display text-4xl font-black text-slate-950 dark:text-white">Selamat datang kembali.</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Masuk untuk membuka tiket digital, dashboard, dan operasi event.</p>
 
                 <?php if (!empty($error)): ?>
                     <div data-toast="<?= htmlspecialchars($error) ?>" data-toast-type="error"></div>
@@ -34,8 +34,9 @@
                 <?php endif; ?>
 
                 <form data-loading-submit class="mt-8 space-y-5" action="<?= $baseUrl ?>/login<?= !empty($redirect) ? '?redirect=' . urlencode($redirect) : '' ?>" method="POST">
+                    <?= \App\Helpers\AuthHelper::getCsrfInput() ?>
                     <div>
-                        <label for="email" class="mb-2 block text-sm font-black text-slate-700">Email</label>
+                        <label for="email" class="mb-2 block text-sm font-black text-slate-700 dark:text-slate-300">Email</label>
                         <div class="relative">
                             <i class="fa-regular fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                             <input id="email" name="email" type="email" required autocomplete="email" placeholder="nama@email.com" class="input-modern pl-11">
@@ -43,7 +44,7 @@
                     </div>
                     <div>
                         <div class="mb-2 flex items-center justify-between">
-                            <label for="password" class="block text-sm font-black text-slate-700">Password</label>
+                            <label for="password" class="block text-sm font-black text-slate-700 dark:text-slate-300">Password</label>
                             <a href="#" class="text-xs font-black text-emerald-600 hover:text-emerald-700">Lupa password?</a>
                         </div>
                         <div class="relative">
@@ -55,18 +56,17 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-between">
-                        <label class="flex items-center gap-2 text-sm font-bold text-slate-600">
-                            <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500">
-                            Remember me
+                        <label class="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-400">
+                            <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300 dark:border-slate-600 dark:bg-slate-800 text-emerald-500 focus:ring-emerald-500">
+                            Ingat saya di perangkat ini
                         </label>
                         <span class="text-xs font-bold text-slate-400">Protected session</span>
                     </div>
                     <button type="submit" class="btn-accent w-full"><i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk</button>
                 </form>
 
-                <p class="mt-7 text-center text-sm font-semibold text-slate-600">
-                    Belum punya akun?
-                    <a href="<?= $baseUrl ?>/register" class="font-black text-slate-950 hover:text-emerald-600">Daftar sekarang</a>
+                <p class="mt-8 text-center text-sm font-bold text-slate-600 dark:text-slate-400">
+                    Belum punya akun? <a href="<?= $baseUrl ?>/register" class="text-slate-950 dark:text-white hover:underline">Daftar sekarang</a>
                 </p>
             </div>
         </div>

@@ -1,6 +1,7 @@
 {
     "require": {
         "chillerlan/php-qrcode": "4.3.0",
-        "phpmailer/phpmailer": "^7.1"
+        "phpmailer/phpmailer": "^7.1",
+        "vlucas/phpdotenv": "^5.6"
     }
 }

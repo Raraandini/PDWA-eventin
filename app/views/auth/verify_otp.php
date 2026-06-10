@@ -31,6 +31,7 @@
                 <?php endif; ?>
 
                 <form id="verify-form" class="mt-8 space-y-5" action="<?= $baseUrl ?>/verify-otp" method="POST">
+                    <?= \App\Helpers\AuthHelper::getCsrfInput() ?>
                     <div>
                         <label for="otp" class="mb-2 block text-sm font-black text-slate-700 text-center">Kode 6-Digit</label>
                         <input id="otp" name="otp" type="text" required placeholder="XXXXXX" maxlength="6" pattern="\d{6}" class="input-modern text-center text-3xl font-mono tracking-[0.5em]" autocomplete="one-time-code">
@@ -40,6 +41,7 @@
                 </form>
 
                 <form class="mt-6 text-center" action="<?= $baseUrl ?>/resend-otp" method="POST">
+                    <?= \App\Helpers\AuthHelper::getCsrfInput() ?>
                     <p class="text-sm font-semibold text-slate-600 mb-2">Belum menerima email?</p>
                     <button type="submit" class="font-black text-indigo-600 hover:text-indigo-800 underline">Kirim ulang OTP</button>
                 </form>

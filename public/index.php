@@ -6,6 +6,10 @@
 $composerAutoload = dirname(__DIR__) . '/vendor/autoload.php';
 if (file_exists($composerAutoload)) {
     require_once $composerAutoload;
+
+    // Load .env variables
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+    $dotenv->safeLoad();
 }
 
 // Autoloader sederhana untuk PSR-4 namespace App
@@ -38,6 +42,9 @@ App\Helpers\AuthHelper::startSession();
 
 // Muat definisi routes
 require_once dirname(__DIR__) . '/routes/web.php';
+
+// Validasi global CSRF untuk semua request berjenis POST
+App\Helpers\AuthHelper::requireCsrf();
 
 // Dispatch request
 App\Helpers\Router::dispatch();

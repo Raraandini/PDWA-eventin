@@ -15,8 +15,8 @@ class AdminController {
     private $userModel;
 
     public function __construct() {
-        // Proteksi route admin
-        AuthHelper::requireAdmin();
+        // Proteksi route admin/staff
+        AuthHelper::requireStaff();
         
         $this->eventModel = new Event();
         $this->pendaftaranModel = new Pendaftaran();
@@ -25,6 +25,7 @@ class AdminController {
     }
 
     public function index() {
+        AuthHelper::requireAdmin();
         $pageTitle = 'Dashboard Admin';
         
         // Statistik
@@ -49,6 +50,7 @@ class AdminController {
     }
 
     public function events() {
+        AuthHelper::requireAdmin();
         $pageTitle = 'Manajemen Event';
         $events = $this->eventModel->all();
         
@@ -61,6 +63,7 @@ class AdminController {
     }
 
     public function createEvent() {
+        AuthHelper::requireAdmin();
         $pageTitle = 'Tambah Event Baru';
         $error = $_SESSION['error'] ?? null;
         unset($_SESSION['error']);
@@ -70,6 +73,7 @@ class AdminController {
     }
 
     public function storeEvent() {
+        AuthHelper::requireAdmin();
         $judul = trim($_POST['judul'] ?? '');
         $deskripsi = trim($_POST['deskripsi'] ?? '');
         $lokasi = trim($_POST['lokasi'] ?? '');
@@ -131,7 +135,11 @@ class AdminController {
             }
         }
 
-        $success = $this->eventModel->create($judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $bannerName, $adminId);
+        // Handle Kategori & Batas Registrasi
+        $kategori = trim($_POST['kategori'] ?? 'Umum');
+        $batas_registrasi = !empty($_POST['batas_registrasi']) ? $_POST['batas_registrasi'] : null;
+
+        $success = $this->eventModel->create($judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $bannerName, $adminId, $kategori, $batas_registrasi);
 
         if ($success) {
             $_SESSION['success'] = 'Event baru berhasil ditambahkan!';
@@ -144,6 +152,7 @@ class AdminController {
     }
 
     public function editEvent($id) {
+        AuthHelper::requireAdmin();
         $event = $this->eventModel->findById($id);
         
         if (!$event) {
@@ -163,6 +172,7 @@ class AdminController {
     }
 
     public function updateEvent($id) {
+        AuthHelper::requireAdmin();
         $event = $this->eventModel->findById($id);
         
         if (!$event) {
@@ -232,7 +242,11 @@ class AdminController {
             }
         }
 
-        $success = $this->eventModel->update($id, $judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $bannerName, $status);
+        // Handle Kategori & Batas Registrasi
+        $kategori = trim($_POST['kategori'] ?? 'Umum');
+        $batas_registrasi = !empty($_POST['batas_registrasi']) ? $_POST['batas_registrasi'] : null;
+
+        $success = $this->eventModel->update($id, $judul, $slug, $deskripsi, $lokasi, $tanggal_event, $waktu_event, $kuota, $bannerName, $status, $kategori, $batas_registrasi);
 
         if ($success) {
             $_SESSION['success'] = 'Event berhasil diperbarui!';
@@ -245,6 +259,7 @@ class AdminController {
     }
 
     public function deleteEvent($id) {
+        AuthHelper::requireAdmin();
         $event = $this->eventModel->findById($id);
         
         if ($event) {
@@ -270,6 +285,7 @@ class AdminController {
     }
 
     public function peserta() {
+        AuthHelper::requireAdmin();
         $pageTitle = 'Monitoring Kehadiran & Peserta';
         
         $eventId = isset($_GET['event_id']) ? $_GET['event_id'] : null;
@@ -293,6 +309,7 @@ class AdminController {
     }
 
     public function exportPeserta() {
+        AuthHelper::requireAdmin();
         $eventId = isset($_GET['event_id']) ? $_GET['event_id'] : null;
         $data = $this->pendaftaranModel->getExportData($eventId);
         
@@ -340,6 +357,7 @@ class AdminController {
     }
 
     public function exportAttendance() {
+        AuthHelper::requireAdmin();
         $eventId = isset($_GET['event_id']) ? $_GET['event_id'] : null;
         $data = $this->logAbsensiModel->getExportAttendanceData($eventId);
         
@@ -381,6 +399,64 @@ class AdminController {
             echo "</tr>";
         }
         echo "</table>";
+        exit();
+    }
+
+    public function petugas() {
+        AuthHelper::requireAdmin();
+        $pageTitle = 'Manajemen Petugas Scanner';
+        $petugas = $this->userModel->getPetugas();
+        
+        $success = $_SESSION['success'] ?? null;
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['success'], $_SESSION['error']);
+        
+        $baseUrl = AuthHelper::getBaseUrl();
+        include dirname(dirname(__DIR__)) . '/app/views/admin/petugas.php';
+    }
+
+    public function storePetugas() {
+        AuthHelper::requireAdmin();
+        $nama = trim($_POST['nama'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+
+        if (empty($nama) || empty($email) || empty($password)) {
+            $_SESSION['error'] = 'Semua field wajib diisi.';
+            header("Location: " . AuthHelper::getBaseUrl() . "/admin/petugas");
+            exit();
+        }
+
+        if ($this->userModel->findByEmail($email)) {
+            $_SESSION['error'] = 'Email sudah terdaftar. Gunakan email lain.';
+            header("Location: " . AuthHelper::getBaseUrl() . "/admin/petugas");
+            exit();
+        }
+
+        $success = $this->userModel->create($nama, $email, $password, '', '', 'petugas');
+        
+        if ($success) {
+            $this->userModel->markAsVerified($email);
+            $_SESSION['success'] = 'Akun petugas berhasil dibuat!';
+        } else {
+            $_SESSION['error'] = 'Gagal membuat akun petugas.';
+        }
+        
+        header("Location: " . AuthHelper::getBaseUrl() . "/admin/petugas");
+        exit();
+    }
+
+    public function deletePetugas($id) {
+        AuthHelper::requireAdmin();
+        $success = $this->userModel->delete($id);
+        
+        if ($success) {
+            $_SESSION['success'] = 'Akun petugas berhasil dihapus.';
+        } else {
+            $_SESSION['error'] = 'Gagal menghapus akun petugas.';
+        }
+        
+        header("Location: " . AuthHelper::getBaseUrl() . "/admin/petugas");
         exit();
     }
 }

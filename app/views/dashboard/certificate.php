@@ -10,10 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=Playfair+Display:wght@600;700;800&family=Pinyon+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= $baseUrl ?>/css/pages/certificate.css">
 </head>
-<body class="min-h-screen p-4 sm:p-8">
+<body class="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 sm:p-8">
     <div class="no-print mx-auto mb-6 flex w-full max-w-[1120px] items-center justify-between gap-4">
-        <a href="<?= $baseUrl ?>/dashboard" class="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-600 shadow-sm hover:text-slate-950"><i class="fa-solid fa-arrow-left mr-2"></i>Dashboard</a>
-        <button onclick="window.print()" class="rounded-full bg-slate-950 px-6 py-3 text-sm font-black text-white shadow-lg"><i class="fa-solid fa-file-pdf mr-2"></i>Download PDF / Print</button>
+        <a href="<?= $baseUrl ?>/dashboard" class="rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-5 py-3 text-sm font-black text-slate-600 dark:text-slate-300 shadow-sm hover:text-slate-950 dark:hover:text-white"><i class="fa-solid fa-arrow-left mr-2"></i>Dashboard</a>
+        <button onclick="window.print()" class="rounded-full bg-slate-950 dark:bg-slate-800 px-6 py-3 text-sm font-black text-white shadow-lg border dark:border-slate-700 hover:dark:bg-slate-700"><i class="fa-solid fa-file-pdf mr-2"></i>Download PDF / Print</button>
     </div>
 
     <main class="mx-auto certificate overflow-hidden rounded-[1.5rem] shadow-2xl">
@@ -51,8 +51,8 @@
                     <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Panitia Penyelenggara</p>
                 </div>
                 <div class="mx-auto flex flex-col items-center">
-                    <div class="h-20 w-20 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
-                        <img src="<?= $baseUrl ?>/qrcode/<?= htmlspecialchars($ticket['kode_tiket']) ?>.svg" alt="QR Validasi" class="h-full w-full object-contain">
+                    <div class="h-20 w-20 rounded-xl border border-slate-200 bg-white p-2 shadow-sm [&>svg]:h-full [&>svg]:w-full">
+                        <?= App\Helpers\QrHelper::generateSvg($baseUrl . '/verify/' . ($ticket['token_qr'] ?: $ticket['kode_tiket'])) ?>
                     </div>
                     <p class="mt-2 text-[9px] font-black uppercase tracking-[.18em] text-slate-400">Validasi QR</p>
                 </div>

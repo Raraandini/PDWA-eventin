@@ -6,6 +6,14 @@ use App\Helpers\Router;
 Router::get('/', 'HomeController@index');
 Router::get('/events', 'HomeController@index');
 Router::get('/event/{slug}', 'HomeController@detail');
+Router::get('/verify/{token}', 'HomeController@verify');
+
+// Halaman Informasi Peserta
+Router::get('/panduan-pendaftaran', 'HomeController@panduanPendaftaran');
+Router::get('/cara-check-in', 'HomeController@caraCheckIn');
+Router::get('/syarat-ketentuan', 'HomeController@syaratKetentuan');
+Router::get('/faq', 'HomeController@faq');
+Router::get('/validasi-sertifikat', 'HomeController@validasiSertifikat');
 
 // Route Autentikasi
 Router::get('/login', 'AuthController@showLogin');
@@ -23,6 +31,7 @@ Router::get('/profile', 'DashboardController@profile');
 Router::post('/profile/update', 'DashboardController@updateProfile');
 Router::post('/event/{id}/daftar', 'PendaftaranController@daftar');
 Router::get('/ticket/{kode_tiket}', 'PendaftaranController@ticket');
+Router::post('/ticket/{kode_tiket}/batal', 'PendaftaranController@batal');
 Router::get('/sertifikat/{kode_tiket}', 'PendaftaranController@sertifikat');
 
 // Route Admin
@@ -33,6 +42,9 @@ Router::post('/admin/event/store', 'AdminController@storeEvent');
 Router::get('/admin/event/edit/{id}', 'AdminController@editEvent');
 Router::post('/admin/event/update/{id}', 'AdminController@updateEvent');
 Router::post('/admin/event/delete/{id}', 'AdminController@deleteEvent');
+Router::get('/admin/petugas', 'AdminController@petugas');
+Router::post('/admin/petugas/store', 'AdminController@storePetugas');
+Router::post('/admin/petugas/delete/{id}', 'AdminController@deletePetugas');
 Router::get('/admin/scan', 'AdminController@scan');
 Router::post('/admin/scan/process', 'PendaftaranController@processScan');
 Router::get('/admin/peserta', 'AdminController@peserta');

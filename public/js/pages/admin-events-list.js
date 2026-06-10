@@ -16,4 +16,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     search?.addEventListener('input', filterRows);
     status?.addEventListener('change', filterRows);
+
+    // SweetAlert2 Confirmation for Deletion
+    document.querySelectorAll('.delete-event-form').forEach(function(form) {
+        const btn = form.querySelector('.btn-delete-trigger');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Hapus Event?',
+                        text: "Data pendaftaran terkait akan ikut terhapus secara permanen.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        customClass: {
+                            popup: 'rounded-2xl shadow-lift border border-slate-100',
+                            title: 'font-display font-black text-slate-900',
+                            confirmButton: 'rounded-xl font-bold px-6 py-2.5',
+                            cancelButton: 'rounded-xl font-bold px-6 py-2.5'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                } else {
+                    if (confirm('Hapus event ini? Data pendaftaran terkait ikut terhapus.')) {
+                        form.submit();
+                    }
+                }
+            });
+        }
+    });
 });

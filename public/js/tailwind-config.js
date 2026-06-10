@@ -1,4 +1,5 @@
 tailwind.config = {
+    darkMode: 'class',
     theme: {
         extend: {
             fontFamily: {
@@ -7,11 +8,35 @@ tailwind.config = {
                 serif: ['Playfair Display', 'Georgia', 'serif']
             },
             colors: {
+                lime: {
+                    50: 'rgb(var(--theme-light-50) / <alpha-value>)',
+                    100: 'rgb(var(--theme-light-100) / <alpha-value>)',
+                    200: 'rgb(var(--theme-light-200) / <alpha-value>)',
+                    300: 'rgb(var(--theme-light-300) / <alpha-value>)',
+                    400: 'rgb(var(--theme-light-400) / <alpha-value>)',
+                    500: 'rgb(var(--theme-light-500) / <alpha-value>)',
+                    600: 'rgb(var(--theme-light-600) / <alpha-value>)',
+                    700: 'rgb(var(--theme-light-700) / <alpha-value>)',
+                    800: 'rgb(var(--theme-light-800) / <alpha-value>)',
+                    900: 'rgb(var(--theme-light-900) / <alpha-value>)'
+                },
+                emerald: {
+                    50: 'rgb(var(--theme-dark-50) / <alpha-value>)',
+                    100: 'rgb(var(--theme-dark-100) / <alpha-value>)',
+                    200: 'rgb(var(--theme-dark-200) / <alpha-value>)',
+                    300: 'rgb(var(--theme-dark-300) / <alpha-value>)',
+                    400: 'rgb(var(--theme-dark-400) / <alpha-value>)',
+                    500: 'rgb(var(--theme-dark-500) / <alpha-value>)',
+                    600: 'rgb(var(--theme-dark-600) / <alpha-value>)',
+                    700: 'rgb(var(--theme-dark-700) / <alpha-value>)',
+                    800: 'rgb(var(--theme-dark-800) / <alpha-value>)',
+                    900: 'rgb(var(--theme-dark-900) / <alpha-value>)'
+                },
                 eventin: {
                     ink: '#0f172a',
                     muted: '#64748b',
-                    lime: '#bef264',
-                    emerald: '#10b981',
+                    lime: 'rgb(var(--theme-light-300) / <alpha-value>)',
+                    emerald: 'rgb(var(--theme-dark-500) / <alpha-value>)',
                     indigo: '#6366f1',
                     purple: '#a855f7',
                     paper: '#fafaf9'

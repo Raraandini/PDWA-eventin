@@ -18,8 +18,16 @@ class HomeController {
     public function index() {
         $pageTitle = 'Beranda - Temukan Event Terbaik';
         
-        // Ambil semua event aktif/open
-        $events = $this->eventModel->allActive();
+        $search = trim($_GET['q'] ?? '');
+        $kategori = trim($_GET['kategori'] ?? '');
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $limit = 8;
+        $offset = ($page - 1) * $limit;
+
+        // Ambil semua event aktif/open dengan pagination
+        $events = $this->eventModel->allActive($search, $kategori, $limit, $offset);
+        $totalEvents = $this->eventModel->countActiveFiltered($search, $kategori);
+        $totalPages = ceil($totalEvents / $limit);
         
         $baseUrl = AuthHelper::getBaseUrl();
         include dirname(dirname(__DIR__)) . '/app/views/home.php';
@@ -50,5 +58,51 @@ class HomeController {
         
         $baseUrl = AuthHelper::getBaseUrl();
         include dirname(dirname(__DIR__)) . '/app/views/event-detail.php';
+    }
+
+    public function verify($token) {
+        $registration = $this->pendaftaranModel->findByTokenQr($token);
+        
+        // Coba cari pakai kode_tiket jika token_qr tidak ditemukan
+        if (!$registration) {
+            $registration = $this->pendaftaranModel->findByKodeTiket($token);
+        }
+        
+        $baseUrl = AuthHelper::getBaseUrl();
+        $pageTitle = 'Verifikasi Keaslian Sertifikat';
+        
+        include dirname(dirname(__DIR__)) . '/app/views/verify.php';
+    }
+
+    // --- Halaman Informasi Statis ---
+
+    public function panduanPendaftaran() {
+        $pageTitle = 'Panduan Pendaftaran';
+        $baseUrl = AuthHelper::getBaseUrl();
+        include dirname(dirname(__DIR__)) . '/app/views/pages/panduan-pendaftaran.php';
+    }
+
+    public function caraCheckIn() {
+        $pageTitle = 'Cara Check-In QR';
+        $baseUrl = AuthHelper::getBaseUrl();
+        include dirname(dirname(__DIR__)) . '/app/views/pages/cara-check-in.php';
+    }
+
+    public function syaratKetentuan() {
+        $pageTitle = 'Syarat & Ketentuan';
+        $baseUrl = AuthHelper::getBaseUrl();
+        include dirname(dirname(__DIR__)) . '/app/views/pages/syarat-ketentuan.php';
+    }
+
+    public function faq() {
+        $pageTitle = 'FAQ - Pertanyaan Umum';
+        $baseUrl = AuthHelper::getBaseUrl();
+        include dirname(dirname(__DIR__)) . '/app/views/pages/faq.php';
+    }
+
+    public function validasiSertifikat() {
+        $pageTitle = 'Validasi Sertifikat';
+        $baseUrl = AuthHelper::getBaseUrl();
+        include dirname(dirname(__DIR__)) . '/app/views/pages/validasi-sertifikat.php';
     }
 }

@@ -12,6 +12,7 @@
 
     <div class="grid gap-6 lg:grid-cols-[1fr_360px]">
         <form data-loading-submit action="<?= $baseUrl ?>/admin/event/store" method="POST" enctype="multipart/form-data" class="premium-card rounded-[2rem] p-6 sm:p-8">
+            <?= \App\Helpers\AuthHelper::getCsrfInput() ?>
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="sm:col-span-2">
                     <label class="mb-2 block text-sm font-black text-slate-700" for="judul">Judul Event</label>
@@ -38,7 +39,25 @@
                     <input class="input-modern" type="number" id="kuota" name="kuota" min="1" required placeholder="150">
                 </div>
                 <div>
-                    <label class="mb-2 block text-sm font-black text-slate-700" for="banner">Banner</label>
+                    <label class="mb-2 block text-sm font-black text-slate-700" for="kategori">Kategori</label>
+                    <select class="input-modern" id="kategori" name="kategori">
+                        <option value="Umum">Umum</option>
+                        <option value="Teknologi">Teknologi</option>
+                        <option value="Bisnis">Bisnis</option>
+                        <option value="Kesehatan">Kesehatan</option>
+                        <option value="Pendidikan">Pendidikan</option>
+                        <option value="Desain">Desain</option>
+                        <option value="Olahraga">Olahraga</option>
+                        <option value="Hiburan">Hiburan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-black text-slate-700" for="batas_registrasi">Tutup Pendaftaran (Batas Waktu)</label>
+                    <input class="input-modern" type="datetime-local" id="batas_registrasi" name="batas_registrasi">
+                    <p class="mt-1 text-xs text-slate-500">Kosongkan jika pendaftaran ditutup hanya saat kuota habis.</p>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-black text-slate-700" for="banner">Banner Image</label>
                     <input class="input-modern" id="banner" name="banner" type="file" accept="image/*">
                 </div>
             </div>
@@ -50,8 +69,12 @@
 
         <aside class="space-y-6">
             <div class="bento-card overflow-hidden">
-                <div id="banner-preview" class="flex h-56 items-center justify-center bg-slate-950 text-lime-300">
-                    <div class="text-center"><i class="fa-solid fa-image text-4xl"></i><p class="mt-3 text-sm font-black uppercase">Preview Banner</p></div>
+                <div id="banner-preview" class="h-56 bg-slate-950">
+                    <?php
+                    $previewEvent = ['judul' => 'Preview Banner', 'id' => 0];
+                    $bannerSrc = \App\Helpers\BannerHelper::generateSvgImageUri($previewEvent);
+                    ?>
+                    <img id="banner-img" src="<?= $bannerSrc ?>" alt="Banner preview" class="h-full w-full object-cover">
                 </div>
                 <div class="p-5">
                     <p class="font-black text-slate-950">Upload banner modern</p>

@@ -161,6 +161,15 @@ class Pendaftaran {
         ]);
     }
 
+    public function deleteByKodeTiket($kodeTiket, $userId) {
+        $sql = "DELETE FROM pendaftaran WHERE kode_tiket = :kode_tiket AND user_id = :user_id AND status_checkin = 'pending'";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':kode_tiket' => $kodeTiket,
+            ':user_id' => $userId
+        ]);
+    }
+
     public function countAll() {
         $sql = "SELECT COUNT(*) as total FROM pendaftaran";
         $stmt = $this->db->query($sql);

@@ -16,7 +16,9 @@ CREATE TABLE IF NOT EXISTS user (
     password VARCHAR(255) NOT NULL,
     no_hp VARCHAR(20),
     instansi VARCHAR(100),
-    role ENUM('admin', 'peserta') DEFAULT 'peserta',
+    role ENUM('admin', 'peserta', 'petugas') DEFAULT 'peserta',
+    avatar VARCHAR(255) DEFAULT NULL,
+    theme_color VARCHAR(50) DEFAULT 'lime',
     dibuat_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     diupdate_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     otp_code VARCHAR(10) DEFAULT NULL,
@@ -37,8 +39,10 @@ CREATE TABLE IF NOT EXISTS event (
     waktu_event TIME NOT NULL,
     kuota INT NOT NULL,
     banner VARCHAR(255),
-    status ENUM('open', 'closed', 'finished') DEFAULT 'open',
-    dibuat_oleh INT,
+    kategori VARCHAR(50) DEFAULT 'Umum',
+    status ENUM('open', 'closed') DEFAULT 'open',
+    batas_registrasi DATETIME NULL,
+    dibuat_oleh INT NOT NULL,
     dibuat_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     diupdate_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_event_admin FOREIGN KEY (dibuat_oleh) REFERENCES user(id) ON DELETE SET NULL
@@ -97,15 +101,20 @@ SELECT 'Administrator', 'admin@gmail.com', '$2y$10$i8p.ed1Xq3lu1fg8pf2/.uH1y9pBm
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'admin@gmail.com');
 
+INSERT INTO user (nama, email, password, role, is_verified)
+SELECT 'Petugas Scanner', 'petugas@gmail.com', '$2y$10$i8p.ed1Xq3lu1fg8pf2/.uH1y9pBme68kUVxhlSY.y6Ml3ZzAIj8a', 'petugas', 1
+FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'petugas@gmail.com');
+
 -- =====================================================
 -- DATA EVENT CONTOH
 -- =====================================================
-INSERT INTO event (judul, slug, deskripsi, lokasi, tanggal_event, waktu_event, kuota, status, dibuat_oleh)
-SELECT 'Seminar Teknologi AI', 'seminar-teknologi-ai', 'Seminar perkembangan AI terbaru.', 'Gedung Convention Yogyakarta', '2026-06-15', '09:00:00', 200, 'open', 1
+INSERT INTO event (judul, slug, deskripsi, lokasi, tanggal_event, waktu_event, kuota, kategori, status, batas_registrasi, dibuat_oleh)
+SELECT 'Seminar Teknologi AI', 'seminar-teknologi-ai', 'Seminar perkembangan AI terbaru.', 'Gedung Convention Yogyakarta', '2026-06-15', '09:00:00', 200, 'Teknologi', 'open', '2026-06-14 23:59:59', 1
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM event WHERE slug = 'seminar-teknologi-ai');
 
-INSERT INTO event (judul, slug, deskripsi, lokasi, tanggal_event, waktu_event, kuota, status, dibuat_oleh)
-SELECT 'Workshop UI UX', 'workshop-ui-ux', 'Pelatihan desain UI UX modern.', 'Auditorium Kampus', '2026-06-20', '13:00:00', 100, 'open', 1
+INSERT INTO event (judul, slug, deskripsi, lokasi, tanggal_event, waktu_event, kuota, kategori, status, batas_registrasi, dibuat_oleh)
+SELECT 'Workshop UI UX', 'workshop-ui-ux', 'Pelatihan desain UI UX modern.', 'Auditorium Kampus', '2026-06-20', '13:00:00', 100, 'Kreatif', 'open', '2026-06-19 23:59:59', 1
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM event WHERE slug = 'workshop-ui-ux');

@@ -37,6 +37,13 @@ class PendaftaranController {
             exit();
         }
 
+        // Cek Batas Waktu Registrasi (Deadline)
+        if (!empty($event['batas_registrasi']) && time() > strtotime($event['batas_registrasi'])) {
+            $_SESSION['error'] = 'Waktu pendaftaran untuk event ini sudah ditutup secara otomatis.';
+            header("Location: " . AuthHelper::getBaseUrl() . "/event/" . $event['slug']);
+            exit();
+        }
+
         // Cek kuota sisa
         $remaining = $this->eventModel->getRemainingKuota($eventId);
         if ($remaining <= 0) {
@@ -61,14 +68,19 @@ class PendaftaranController {
         // Token QR acak unik
         $tokenQr = bin2hex(random_bytes(16));
 
-        // Generate QR Code Offline (SVG File)
-        // Kita simpan file QR code dengan nama kode_tiket.svg
-        $qrPath = QrHelper::generateFile($tokenQr, $kodeTiket);
-
         // Simpan pendaftaran ke database
         $success = $this->pendaftaranModel->create($userId, $eventId, $kodeTiket, $tokenQr);
 
         if ($success) {
+            // Send Ticket via Email
+            $userModel = new \App\Models\User();
+            $user = $userModel->findById($userId);
+            if ($user && !empty($user['email'])) {
+                $mailer = new \App\Helpers\MailerHelper();
+                $ticketUrl = AuthHelper::getBaseUrl() . "/ticket/" . $kodeTiket;
+                $mailer->sendTicket($user['email'], $user['nama'], $event['judul'], $kodeTiket, $ticketUrl);
+            }
+
             $_SESSION['success'] = 'Registrasi event berhasil! Ini adalah tiket digital Anda.';
             header("Location: " . AuthHelper::getBaseUrl() . "/ticket/" . $kodeTiket);
         } else {
@@ -106,6 +118,43 @@ class PendaftaranController {
         
         $baseUrl = AuthHelper::getBaseUrl();
         include dirname(dirname(__DIR__)) . '/app/views/dashboard/ticket.php';
+    }
+
+    public function batal($kodeTiket) {
+        AuthHelper::requireLogin();
+        
+        $userId = AuthHelper::getUserId();
+        $ticket = $this->pendaftaranModel->findByKodeTiket($kodeTiket);
+        
+        if (!$ticket) {
+            $_SESSION['error'] = 'Tiket digital tidak ditemukan.';
+            header("Location: " . AuthHelper::getBaseUrl() . "/dashboard");
+            exit();
+        }
+
+        // Cek otorisasi akses tiket
+        if ($ticket['user_id'] != $userId) {
+            $_SESSION['error'] = 'Akses Ditolak: Anda tidak berhak membatalkan tiket ini.';
+            header("Location: " . AuthHelper::getBaseUrl() . "/dashboard");
+            exit();
+        }
+
+        if ($ticket['status_checkin'] !== 'pending') {
+            $_SESSION['error'] = 'Tiket yang sudah check-in atau selesai tidak dapat dibatalkan.';
+            header("Location: " . AuthHelper::getBaseUrl() . "/ticket/" . $kodeTiket);
+            exit();
+        }
+
+        $success = $this->pendaftaranModel->deleteByKodeTiket($kodeTiket, $userId);
+
+        if ($success) {
+            $_SESSION['success'] = 'Pendaftaran event berhasil dibatalkan. Kuota telah dikembalikan.';
+        } else {
+            $_SESSION['error'] = 'Gagal membatalkan pendaftaran. Silakan coba beberapa saat lagi.';
+        }
+        
+        header("Location: " . AuthHelper::getBaseUrl() . "/dashboard");
+        exit();
     }
 
     public function sertifikat($kodeTiket) {
@@ -147,8 +196,8 @@ class PendaftaranController {
         // Output as JSON
         header('Content-Type: application/json');
 
-        // Pastikan login sebagai admin
-        if (!AuthHelper::isAdmin()) {
+        // Pastikan login sebagai admin atau petugas
+        if (!AuthHelper::isStaff()) {
             http_response_code(403);
             echo json_encode([
                 'status' => 'error',
@@ -160,6 +209,13 @@ class PendaftaranController {
         // Baca input JSON
         $inputData = json_decode(file_get_contents('php://input'), true);
         $tokenQr = trim($inputData['token_qr'] ?? '');
+        
+        // Extract token if it's a full URL (e.g., from QR validasi /verify/TOKEN)
+        if (strpos($tokenQr, '/verify/') !== false) {
+            $parts = explode('/verify/', $tokenQr);
+            $tokenQr = end($parts);
+        }
+        
         $adminId = AuthHelper::getUserId();
 
         if (empty($tokenQr)) {

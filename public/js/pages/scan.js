@@ -89,9 +89,13 @@
         isProcessing = true;
         el('feedback-title').textContent = 'Memvalidasi token...';
         el('feedback-icon').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-3xl"></i>';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         fetch(BASE_URL + '/admin/scan/process', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken 
+            },
             body: JSON.stringify({ token_qr: decodedText })
         }).then(r => r.json()).then(showResult).catch(() => showResult({ status: 'error', message: 'Koneksi server gagal.' }));
     }
